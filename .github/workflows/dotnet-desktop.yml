@@ -44,11 +44,17 @@ jobs:
     #- name: Publish the application
     #  run: dotnet publish -c Release -r win-x64 --self-contained true --output ./publish
 
-    - name: Upload build artifacts (optional)
-      uses: actions/upload-artifact@v2
+  deploy:
+    runs-on: windows-latest  # You can specify the deployment server/target environment
+
+    steps:
+      uses: actions/upload-artifact@v4
       with:
-        name: app-build
+        name: build-artifact
         path: ./publish
+
+
+
 
 
    
