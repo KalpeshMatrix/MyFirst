@@ -1,64 +1,49 @@
-
-
-name: .NET Core Desktop
+name: Kalpesh Build and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-
   build:
-
-    strategy:
-      matrix:
-        configuration: [Debug, Release]
-
-    runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-
-   
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-
-   # - name: Set up .NET
-    #  uses: actions/setup-dotnet@v3
-     # with:
-      #  dotnet-version: '7.0'  # Use the version you are targeting, e.g., '6.0', '7.0'
-
-   # - name: Restore dependencies
-#      run: dotnet restore  # Restore NuGet dependencies
-
-  #  - name: Build the application
-   #   run: dotnet build --configuration Release  # Build the app in Release mode
-
-    #- name: Run tests (if applicable)
-     # run: dotnet test  # Run unit tests if they exist
-
-    #- name: Publish the application
-    #  run: dotnet publish -c Release -r win-x64 --self-contained true --output ./publish
-
-  deploy:
-    runs-on: windows-latest  # You can specify the deployment server/target environment
+    runs-on: windows-latest
 
     steps:
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifact
-        path: ./publish
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
 
+      - name: Restore Dependencies
+        run: dotnet restore COSECWORKFLOW.sln
 
+      - name: Build Application
+        run: dotnet build COSECWORKFLOW.sln --configuration Release --no-restore
 
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-build
+          path: bin/Release/net8.0/
+          retention-days: 5  # Store the artifact for 5 days
 
-   
+  download:
+    runs-on: windows-latest
+    needs: build  # This ensures the build job runs first
 
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dotnet-build
+          path: downloaded-artifacts/  # Store the artifacts in a separate folder
 
-
-  
+      - name: List Downloaded Files (Debugging Purpose)
+        run: Get-ChildItem -Path 'downloaded-artifacts' -Recurse
