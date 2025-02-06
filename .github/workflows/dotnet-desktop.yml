@@ -26,6 +26,31 @@ jobs:
       with:
         fetch-depth: 0
 
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0'  # Use the version you are targeting, e.g., '6.0', '7.0'
+
+    - name: Restore dependencies
+      run: dotnet restore  # Restore NuGet dependencies
+
+    - name: Build the application
+      run: dotnet build --configuration Release  # Build the app in Release mode
+
+    - name: Run tests (if applicable)
+      run: dotnet test  # Run unit tests if they exist
+
+    - name: Publish the application
+      run: dotnet publish -c Release -r win-x64 --self-contained true --output ./publish
+
+    - name: Upload build artifacts (optional)
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-build
+        path: ./publish
+
+
    
 
 
